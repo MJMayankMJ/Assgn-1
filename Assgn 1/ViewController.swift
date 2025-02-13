@@ -13,8 +13,10 @@ class ViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var weightTextField: UITextField!
     @IBOutlet weak var resultLabel: UILabel!
     
-    @IBOutlet weak var heightStepper: UIStepper!
-    @IBOutlet weak var weightStepper: UIStepper!
+    @IBOutlet weak var heightSlider: UISlider!
+    @IBOutlet weak var weightSlider: UISlider!
+    @IBOutlet weak var discoView: UIView!
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -34,25 +36,27 @@ class ViewController: UIViewController, UITextFieldDelegate {
             self.heightTextField.becomeFirstResponder()
         }
         
-        // To dismiss keyboard
+        // Dismiss keyboard when tapping outside
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
         view.addGestureRecognizer(tapGesture)
 
-        // Set initial stepper values based on text fields
-        heightStepper.value = Double(heightTextField.text ?? "170") ?? 170
-        weightStepper.value = Double(weightTextField.text ?? "70") ?? 70
+        heightSlider.minimumValue = 50
+        heightSlider.maximumValue = 250
+        weightSlider.minimumValue = 30
+        weightSlider.maximumValue = 200
 
-        // Configure stepper properties
-        heightStepper.minimumValue = 50
-        heightStepper.maximumValue = 250
-        heightStepper.stepValue = 1
+        heightSlider.value = 170
+        weightSlider.value = 70
 
-        weightStepper.minimumValue = 30
-        weightStepper.maximumValue = 200
-        weightStepper.stepValue = 1
+        heightTextField.text = "170"
+        weightTextField.text = "70"
+
+        // Setup circular disco view
+        discoView.layer.cornerRadius = discoView.frame.size.width / 2
+        discoView.clipsToBounds = true
+        discoView.backgroundColor = .red
     }
     
-    // Dismiss keyboard
     @objc func dismissKeyboard() {
         view.endEditing(true)
     }
@@ -68,16 +72,32 @@ class ViewController: UIViewController, UITextFieldDelegate {
         return true
     }
 
-    // update height when stepper is changed and autocalculate bmi
-    @IBAction func heightStepperChanged(_ sender: UIStepper) {
+    // Handle slider changes
+    @IBAction func heightSliderChanged(_ sender: UISlider) {
         heightTextField.text = String(Int(sender.value))
+        updateDiscoLight()
         calculateBMI()
     }
 
-    // update weight when stepper is changed and autocalculate bmi
-    @IBAction func weightStepperChanged(_ sender: UIStepper) {
+    @IBAction func weightSliderChanged(_ sender: UISlider) {
         weightTextField.text = String(Int(sender.value))
+        updateDiscoLight()
         calculateBMI()
+    }
+
+    // Handle text field changes
+    @IBAction func heightTextFieldChanged(_ sender: UITextField) {
+        if let height = Float(sender.text ?? "") {
+            heightSlider.value = height
+            updateDiscoLight()
+        }
+    }
+
+    @IBAction func weightTextFieldChanged(_ sender: UITextField) {
+        if let weight = Float(sender.text ?? "") {
+            weightSlider.value = weight
+            updateDiscoLight()
+        }
     }
 
     func calculateBMI() {
@@ -91,5 +111,11 @@ class ViewController: UIViewController, UITextFieldDelegate {
         let bmi = weight / (heightInMeters * heightInMeters)
         resultLabel.text = String(format: "BMI: %.2f", bmi)
     }
-}
 
+    // Function to animate the disco light color
+    func updateDiscoLight() {
+        UIView.animate(withDuration: 0.5) {
+            self.discoView.backgroundColor = self.discoView.backgroundColor == .red ? .blue : .red
+        }
+    }
+}
