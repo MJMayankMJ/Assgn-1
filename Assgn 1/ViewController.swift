@@ -16,6 +16,9 @@ class ViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var heightSlider: UISlider!
     @IBOutlet weak var weightSlider: UISlider!
     @IBOutlet weak var discoView: UIView!
+    
+    let discoColors: [UIColor] = [.red, .blue, .green, .yellow, .purple, .orange, .cyan, .magenta]
+    var currentColorIndex = 0
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -71,6 +74,11 @@ class ViewController: UIViewController, UITextFieldDelegate {
         }
         return true
     }
+    
+    // Updates disco light when user does anything in text field
+    func textFieldDidChangeSelection(_ textField: UITextField) {
+        updateDiscoLight()
+    }
 
     // Handle slider changes
     @IBAction func heightSliderChanged(_ sender: UISlider) {
@@ -112,10 +120,20 @@ class ViewController: UIViewController, UITextFieldDelegate {
         resultLabel.text = String(format: "BMI: %.2f", bmi)
     }
 
-    // Function to animate the disco light color
-    func updateDiscoLight() {
-        UIView.animate(withDuration: 0.5) {
-            self.discoView.backgroundColor = self.discoView.backgroundColor == .red ? .blue : .red
+    // Generate a random color
+    func generateRandomColor() -> UIColor {
+            return UIColor(
+                red: CGFloat.random(in: 0...1),
+                green: CGFloat.random(in: 0...1),
+                blue: CGFloat.random(in: 0...1),
+                alpha: 1.0
+            )
         }
-    }
+
+        // Function to animate the disco light color
+        func updateDiscoLight() {
+            UIView.animate(withDuration: 0.5) {
+                self.discoView.backgroundColor = self.generateRandomColor()
+            }
+        }
 }
